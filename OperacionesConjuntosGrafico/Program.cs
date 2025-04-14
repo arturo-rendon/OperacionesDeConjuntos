@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
@@ -16,6 +17,8 @@ namespace OperacionesConjuntosGrafico
         private Panel pnlGrafico;
         private TextBox txtConjuntoA;
         private TextBox txtConjuntoB;
+        private Label lblTiempoEjecucion;
+        private Label lblComplejidad;
 
         public Program()
         {
@@ -30,6 +33,9 @@ namespace OperacionesConjuntosGrafico
 
             pnlGrafico = new Panel { Location = new Point(120, 10), Size = new Size(400, 300), BackColor = Color.White };
 
+            lblTiempoEjecucion = new Label { Location = new Point(10, 360), Size = new Size(500, 30), Text = "Tiempo de ejecución: " };
+            lblComplejidad = new Label { Location = new Point(10, 390), Size = new Size(500, 30), Text = "Complejidad Algorítmica: " };
+
             // Evento para cada botón
             btnUnión.Click += (sender, e) => DibujarOperacion("Unión");
             btnIntersección.Click += (sender, e) => DibujarOperacion("Intersección");
@@ -43,9 +49,11 @@ namespace OperacionesConjuntosGrafico
             Controls.Add(txtConjuntoA);
             Controls.Add(txtConjuntoB);
             Controls.Add(pnlGrafico);
+            Controls.Add(lblTiempoEjecucion);
+            Controls.Add(lblComplejidad);
 
             Text = "Operaciones con Conjuntos";
-            Size = new Size(550, 400);
+            Size = new Size(550, 500);
         }
 
         private void DibujarOperacion(string operacion)
@@ -55,6 +63,17 @@ namespace OperacionesConjuntosGrafico
             HashSet<string> resultado = new HashSet<string>();
 
             Color colorOperacion = Color.Black;
+            string complejidad = string.Empty;
+            string resultadoComplejidad = string.Empty;
+
+            // Tamaños de los conjuntos
+            int n = conjuntoA.Count;
+            int m = conjuntoB.Count;
+
+            // Medición de tiempo
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+            DateTime inicio = DateTime.Now;
 
             switch (operacion)
             {
@@ -62,23 +81,39 @@ namespace OperacionesConjuntosGrafico
                     resultado = new HashSet<string>(conjuntoA);
                     resultado.UnionWith(conjuntoB);
                     colorOperacion = Color.Purple;
+                    complejidad = $"O(n + m)";
+                    resultadoComplejidad = $"O({n} + {m}) = {n + m}";
                     break;
                 case "Intersección":
                     resultado = new HashSet<string>(conjuntoA);
                     resultado.IntersectWith(conjuntoB);
                     colorOperacion = Color.Green;
+                    complejidad = $"O(n)";
+                    resultadoComplejidad = $"O({Math.Min(n, m)}) = {Math.Min(n, m)}";
                     break;
                 case "Diferencia":
                     resultado = new HashSet<string>(conjuntoA);
                     resultado.ExceptWith(conjuntoB);
                     colorOperacion = Color.Orange;
+                    complejidad = $"O(n)";
+                    resultadoComplejidad = $"O({n}) = {n}";
                     break;
                 case "Dif. Simétrica":
                     resultado = new HashSet<string>(conjuntoA);
                     resultado.SymmetricExceptWith(conjuntoB);
                     colorOperacion = Color.Brown;
+                    complejidad = $"O(n + m)";
+                    resultadoComplejidad = $"O({n} + {m}) = {n + m}";
                     break;
             }
+
+            stopwatch.Stop();
+            DateTime fin = DateTime.Now;
+            TimeSpan duracion = stopwatch.Elapsed;
+
+            // Actualizar las etiquetas con los tiempos y la complejidad
+            lblTiempoEjecucion.Text = $"Inicio: {inicio:HH:mm:ss.fff}, Fin: {fin:HH:mm:ss.fff}, Duración: {duracion.TotalMilliseconds} ms";
+            lblComplejidad.Text = $"Complejidad Algorítmica: {complejidad}, Resultado: {resultadoComplejidad}";
 
             using (Graphics g = pnlGrafico.CreateGraphics())
             {
